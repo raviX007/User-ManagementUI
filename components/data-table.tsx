@@ -1,15 +1,10 @@
+"use client";
 
-"use client"
-
-import * as React from "react"
-import { Trash2 } from "lucide-react"
-import { EditIcon } from "lucide-react"
-
-import {
-  CaretSortIcon,
-  ChevronDownIcon,
-  DotsHorizontalIcon,
-} from "@radix-ui/react-icons"
+import * as React from "react";
+import { Trash2 } from "lucide-react";
+import { EditIcon } from "lucide-react";
+import config from "@/app/config";
+import { CaretSortIcon, ChevronDownIcon } from "@radix-ui/react-icons";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -21,17 +16,17 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-} from "@tanstack/react-table"
+} from "@tanstack/react-table";
 
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -39,134 +34,218 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from "@/components/ui/table";
+import { User } from "@/app/types/User";
 
-const data: Payment[] = [
-  {
-    id: "m5gr84i9",
-    name: "raj",
-    phoneNumber: "899667876",
-    email: "ken99@yahoo.com",
-    hobbies:"reading,dancing"
-  },
-  {
-    id: "3u1reuv4",
-    name : "nami",
-    phoneNumber: "9783879875",
-    email: "Abe45@gmail.com",
-    hobbies:"taijutsu,gaming"
-  },
-  {
-    id: "derv1ws0",
-    name: "floyd",
-    phoneNumber: "5876785789",
-    email: "Monserrat44@gmail.com",
-    hobbies:"driving,eating"
-  },
-  {
-    id: "5kma53ae",
-    name:"brandon",
-    phoneNumber: "7651766564",
-    email: "Silas22@gmail.com",
-    hobbies:"shooting,travelling"
-  },
-  
-]
+import AddUser from "./add-user";
+import EditUser from "./edit-user";
 
-export type Payment = {
-  id: string;
-  name: string;
-  phoneNumber: string;
-  email: string;
-  hobbies: string;
-}
+import UserAlert from "./custom-alert";
 
-export const columns: ColumnDef<Payment>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: "name",
-    header: "Name",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("name")}</div>
-    ),
-  },
-  {
-    accessorKey: "email",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Email
-          <CaretSortIcon className="ml-2 h-4 w-4" />
-        </Button>
-      )
-    },
-    cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
-  },
-  {
-    accessorKey: "phoneNumber",
-    header: () => <div className="text-center">Contact</div>,
-    cell: ({ row }) => {
-      return <div className="text-center font-medium">{ row.getValue("phoneNumber")}</div>
-    },
-  },
-  {
-    accessorKey: "hobbies",
-    header: () => <div className="text-center">Hobbies</div>,
-    cell: ({ row }) => {
-      return <div className="text-center font-medium">{ row.getValue("hobbies")}</div>
-    },
-  },
-  {
-    accessorKey: "actions", 
-    header: () => <div className="text-center">Actions</div>,
-    cell: () => {
-      return (
-        <div className="flex justify-center items-center">
-          <span className="mr-2 text-gray-400 cursor-pointer">
-            <EditIcon /> 
-          </span>
-          <span className=" text-red-400 cursor-pointer">
-            <Trash2/> 
-          </span>
-        </div>
-      );
-    },
-  },
- 
-]
+const DataTable: React.FC<{ data: User[] }> = ({ data }) => {
+  const [isAlertOpen, setIsAlertOpen] = React.useState(false);
 
-export function DataTable() {
-  const [sorting, setSorting] = React.useState<SortingState>([])
+  const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false);
+
+  const [rowData, setRowData] = React.useState<User>({
+    id: 0,
+    name: "",
+    phoneNumber: "",
+    email: "",
+    hobbies: "",
+  });
+  const [alertMessage, setAlertMessage] = React.useState("");
+  const [isAddUserDialogOpen, setIsAddUserDialogOpen] = React.useState(false);
+  const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
-  )
+  );
   const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({})
-  const [rowSelection, setRowSelection] = React.useState({})
+    React.useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = React.useState({});
+  
+  const sendEmail = async (emailData: User[]) => {
+    let result = false;
+    const res = await fetch(`${config.apiBaseUrl}/mail/sendMail`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        emailData,
+      }),
+    });
+    if (res.ok) {
+      result = true;
+      const data = await res.json();
+      console.log("data:", data);
+    }
+
+    return result;
+  };
+
+  const handleSendEmail = async () => {
+    console.log("In HandleSendEmail");
+    const selectedRows = table.getFilteredSelectedRowModel().rows;
+    const emailData: User[] = selectedRows.map((obj) => obj.original);
+    console.log("emailData", emailData);
+    if(emailData.length==0){
+      setIsAlertOpen(true)
+      setAlertMessage("Please select one or more row")
+    }else{
+      const result = await sendEmail(emailData);
+    setIsAlertOpen(true);
+    if (result) {
+      setAlertMessage("Email sent successfully");
+    } else {
+      setAlertMessage("Could not send email");
+    }
+    }
+    
+  };
+
+  const deleteUser = async (id: number) => {
+    let result = false;
+    const res = await fetch(`http://localhost:8080/api/users/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    console.log("res:", res);
+    if (res.ok) {
+      result = true;
+      const data = await res.json();
+
+      console.log("data:", data);
+    }
+
+    return result;
+  };
+
+  const handleRowDelete = async (id: number) => {
+    console.log("In handleRowDelete function and id is:", id);
+
+    const result = await deleteUser(id);
+
+    setIsAlertOpen(true);
+    if (result) {
+      setAlertMessage("User Deleted Successfully");
+    } else {
+      setAlertMessage("Failed to Delete User");
+    }
+  };
+
+  const handleEdit = async (row: any) => {
+    console.log("Inside handleEdit");
+
+    const editData: User = {
+      id: row.id,
+      name: row.name,
+      phoneNumber: row.phoneNumber,
+      email: row.email,
+      hobbies: row.hobbies,
+    };
+    console.log("editData", editData);
+    setRowData(editData);
+    setIsEditDialogOpen(true);
+    console.log("isDialog box Open:", isEditDialogOpen);
+  };
+
+  const columns: ColumnDef<User>[] = [
+    {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: "id",
+      header: "Id",
+      cell: ({ row }) => <div className="capitalize">{row.getValue("id")}</div>,
+    },
+    {
+      accessorKey: "name",
+      header: "Name",
+      cell: ({ row }) => (
+        <div className="capitalize">{row.getValue("name")}</div>
+      ),
+    },
+    {
+      accessorKey: "email",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Email
+            <CaretSortIcon className="ml-2 h-4 w-4" />
+          </Button>
+        );
+      },
+      cell: ({ row }) => (
+        <div className="lowercase">{row.getValue("email")}</div>
+      ),
+    },
+    {
+      accessorKey: "phoneNumber",
+      header: () => <div className="text-center">Contact</div>,
+      cell: ({ row }) => {
+        return (
+          <div className="text-center font-medium">
+            {row.getValue("phoneNumber")}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "hobbies",
+      header: () => <div className="text-center">Hobbies</div>,
+      cell: ({ row }) => {
+        return (
+          <div className="text-center font-medium">
+            {row.getValue("hobbies")}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "actions",
+      header: () => <div className="text-center">Actions</div>,
+      cell: ({ row }) => {
+        const user = row.original;
+        return (
+          <div className="flex justify-center items-center">
+            <span className="mr-2 text-gray-400 cursor-pointer">
+              <EditIcon onClick={() => handleEdit(user)} />
+            </span>
+            <span className=" text-red-400 cursor-pointer">
+              <div></div>
+              <Trash2 onClick={() => handleRowDelete(user.id)} />
+            </span>
+          </div>
+        );
+      },
+    },
+  ];
 
   const table = useReactTable({
     data,
@@ -185,7 +264,11 @@ export function DataTable() {
       columnVisibility,
       rowSelection,
     },
-  })
+  });
+
+  const handleAddUser = () => {
+    setIsAddUserDialogOpen(true);
+  };
 
   return (
     <div className="w-full">
@@ -220,7 +303,7 @@ export function DataTable() {
                   >
                     {column.id}
                   </DropdownMenuCheckboxItem>
-                )
+                );
               })}
           </DropdownMenuContent>
         </DropdownMenu>
@@ -240,7 +323,7 @@ export function DataTable() {
                             header.getContext()
                           )}
                     </TableHead>
-                  )
+                  );
                 })}
               </TableRow>
             ))}
@@ -299,6 +382,44 @@ export function DataTable() {
           </Button>
         </div>
       </div>
+      <div className="mt-4 flex justify-end">
+        <Button className="mr-4" onClick={handleAddUser}>
+          Add User
+        </Button>
+        <Button onClick={handleSendEmail}>Send Email</Button>
+      </div>
+
+      <div>
+        {isEditDialogOpen ? (
+          <div>
+            {" "}
+            <EditUser data={rowData} isOpen={true} />{" "}
+          </div>
+        ) : (
+          <p> </p>
+        )}
+      </div>
+      <div>
+        {isAddUserDialogOpen ? (
+          <div>
+            {" "}
+            <AddUser isOpen={true} />{" "}
+          </div>
+        ) : (
+          <p> </p>
+        )}
+      </div>
+      <div>
+        {isAlertOpen ? (
+          <div>
+            {" "}
+            <UserAlert message={alertMessage} isOpen={true} />{" "}
+          </div>
+        ) : (
+          <p> </p>
+        )}
+      </div>
     </div>
-  )
-}
+  );
+};
+export default DataTable;
