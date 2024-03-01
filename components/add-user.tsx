@@ -133,7 +133,7 @@ const AddUser: React.FC<{ isOpen: boolean }> = ({ isOpen }) => {
             <DialogHeader>
               <DialogTitle>Add User</DialogTitle>
               <DialogDescription>
-                Add user details here. Click save when you're done.
+                Add user details here. Click save when you are done.
               </DialogDescription>
             </DialogHeader>
 

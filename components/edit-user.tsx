@@ -124,7 +124,7 @@ const EditUser: React.FC<{ data: User; isOpen: boolean }> = ({
             <DialogHeader>
               <DialogTitle>Edit User</DialogTitle>
               <DialogDescription>
-                Edit User details here. Click update when you're done.
+                Edit User details here. Click update when you are done.
               </DialogDescription>
             </DialogHeader>
 
