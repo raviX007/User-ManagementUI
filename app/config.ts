@@ -1,5 +1,5 @@
 const config = {
-    apiBaseUrl: 'http://localhost:8080/api/users',
+    apiBaseUrl: 'https://user-management-backend-1.onrender.com/api/users',
   };
   
   export default config;
