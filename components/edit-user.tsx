@@ -32,7 +32,7 @@ const EditUser: React.FC<{ data: User; isOpen: boolean }> = ({
 
   });
   useEffect(() => {
-    console.log("Inside UseEffect");
+    
     validateInput();
   }, [formData,saveToggle]);
 
@@ -79,29 +79,26 @@ const EditUser: React.FC<{ data: User; isOpen: boolean }> = ({
       },
     })
       .then((res) => {
-        console.log("Inside then");
-        console.log("res:", res);
+        
         if (res.ok) {
-          console.log("result ok");
+          
 
           setFormSubmitStatus("OK");
           setFormSubmitMessage("Data Updated");
         } else {
-          console.log("result not ok");
+          
           setFormSubmitStatus("FAILED");
-          console.log("formSubmitStat:", formSubmitStatus);
           setFormSubmitMessage("Failed to update Data");
         }
       })
       .catch((err) => {
-        console.log("error:", err);
+        
         setFormSubmitStatus("FAILED");
         setFormSubmitMessage("Failed to update Data");
       });
   };
   const handleInput = (e: any) => {
-    console.log("Inside handleInput");
-    console.log("formData:", formData);
+   
     const fieldName = e.target.name;
     const fieldValue = e.target.value;
 

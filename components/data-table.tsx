@@ -77,15 +77,14 @@ const DataTable: React.FC<{ data: User[] }> = ({ data }) => {
     });
     if (res.ok) {
       result = true;
-      const data = await res.json();
-      console.log("data:", data);
+      
     }
 
     return result;
   };
 
   const handleSendEmail = async () => {
-    console.log("In HandleSendEmail");
+   
     const selectedRows = table.getFilteredSelectedRowModel().rows;
     const emailData: User[] = selectedRows.map((obj) => obj.original);
     console.log("emailData", emailData);
@@ -106,26 +105,24 @@ const DataTable: React.FC<{ data: User[] }> = ({ data }) => {
 
   const deleteUser = async (id: number) => {
     let result = false;
-    const res = await fetch(`http://localhost:8080/api/users/${id}`, {
+    const res = await fetch(`${config.apiBaseUrl}/${id}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
       },
     });
 
-    console.log("res:", res);
+    
     if (res.ok) {
       result = true;
-      const data = await res.json();
-
-      console.log("data:", data);
+      
     }
 
     return result;
   };
 
   const handleRowDelete = async (id: number) => {
-    console.log("In handleRowDelete function and id is:", id);
+    
 
     const result = await deleteUser(id);
 
@@ -138,7 +135,7 @@ const DataTable: React.FC<{ data: User[] }> = ({ data }) => {
   };
 
   const handleEdit = async (row: any) => {
-    console.log("Inside handleEdit");
+    
 
     const editData: User = {
       id: row.id,
@@ -150,7 +147,7 @@ const DataTable: React.FC<{ data: User[] }> = ({ data }) => {
     console.log("editData", editData);
     setRowData(editData);
     setIsEditDialogOpen(true);
-    console.log("isDialog box Open:", isEditDialogOpen);
+    
   };
 
   const columns: ColumnDef<User>[] = [

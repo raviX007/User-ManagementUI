@@ -34,7 +34,7 @@ const AddUser: React.FC<{ isOpen: boolean }> = ({ isOpen }) => {
 
   });
   useEffect(() => {
-    console.log("Inside UseEffect");
+    
     validateInput();
   }, [formData,saveToggle]);
 
@@ -44,7 +44,7 @@ const AddUser: React.FC<{ isOpen: boolean }> = ({ isOpen }) => {
   };
 
   const submitForm = () => {
-    console.log("Inside Submit Form");
+    
     setSaveToggle(prev=>!prev);
     if (Object.values(errors).every(error => error == '')) {
       const formURL = `${config.apiBaseUrl}`;
@@ -58,22 +58,21 @@ const AddUser: React.FC<{ isOpen: boolean }> = ({ isOpen }) => {
       },
     })
       .then((res) => {
-        console.log("Inside then");
-        console.log("res:", res);
+       
         if (res.ok) {
-          console.log("result ok");
+          
 
           setFormSubmitStatus("OK");
           setFormSubmitMessage("User Added");
         } else {
-          console.log("result not ok");
+          
           setFormSubmitStatus("FAILED");
-          console.log("formSubmitStat:", formSubmitStatus);
+          
           setFormSubmitMessage("Failed to Add User");
         }
       })
       .catch((err) => {
-        console.log("error:", err);
+        
         setFormSubmitStatus("FAILED");
         setFormSubmitMessage("Failed to Add User");
       });
@@ -102,12 +101,11 @@ const AddUser: React.FC<{ isOpen: boolean }> = ({ isOpen }) => {
     }else{
       errors.hobbies='';
     }
-    console.log("error:",errors);
+   
     setErrors(errors);
   }
   const handleInput = (e: any) => {
-    console.log("Inside handleInput");
-    console.log("formData:", formData);
+    
     const fieldName = e.target.name;
     const fieldValue = e.target.value;
 
@@ -115,9 +113,8 @@ const AddUser: React.FC<{ isOpen: boolean }> = ({ isOpen }) => {
       ...prevState,
       [fieldName]: fieldValue,
     }));
-    console.log("formdata:",formData);
-    //validateInput();
-    // setIsAddDialogOpen(true);
+    
+   
   };
 
   return (
