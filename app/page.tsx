@@ -12,6 +12,7 @@ export default async function Home() {
 }
 
 async function getData() {
+  //console.log("url:",`${config.apiBaseUrl}`)
   const res = await fetch(`${config.apiBaseUrl}`, { cache: "no-store" });
   return res.json();
 }

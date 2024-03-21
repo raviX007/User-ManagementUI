@@ -1,5 +1,5 @@
 const config = {
-    apiBaseUrl: 'https://user-management-backend-1.onrender.com/api/users',
+    apiBaseUrl: 'https://cooperative-ray-life-jacket.cyclic.app/api/users',
   };
   
   export default config;
