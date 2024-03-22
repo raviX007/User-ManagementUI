@@ -1,13 +1,18 @@
 import DataTable from "@/components/data-table";
 import { User } from "@/app/types/User";
 import config from "@/app/config";
+import NavBar from "@/components/navbar";
 export default async function Home() {
   const data: User[] = await getData();
   console.log("data:", data);
   return (
-    <div className="container mx-auto p-4">
-      <DataTable data={data} />
-    </div>
+    <>
+      <NavBar/>
+
+      <div className="container mx-auto p-4">
+        <DataTable data={data} />
+      </div>
+    </>
   );
 }
 
